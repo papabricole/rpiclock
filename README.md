@@ -1,7 +1,7 @@
 # Raspberry Pi clock
 
 A clock + weather display using a Raspberry Pi with a 3.5" LCD display retrofitted inside an Areaware iPhone Dock.
-This stuff require to hollow out the dock since it's a massive block of wood. The "iPhone" like front panel is composed of a laser cut plexiglass with the back painted black leaving a window for the display, and finally an aluminum band carefully bended and glued with epoxy.
+This hack require to hollow out the dock since it's a massive block of wood. The "iPhone" like front panel is composed of a laser cut plexiglass with the back painted black leaving a window for the display, and finally an aluminum band carefully bended and glued with epoxy.
 
 <img src="https://raw.github.com/papabricole/rpiclock/master/RaspberryPiClock.jpg" >
 
