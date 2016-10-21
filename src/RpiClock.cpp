@@ -7,14 +7,22 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 
+#include <cmath>
+
 RpiClock::RpiClock(QWidget *parent) : QWidget(parent)
 {
     connect(&forecast, SIGNAL(finished(QNetworkReply*)), SLOT(fileDownloaded(QNetworkReply*)));
 
-    timeDateTimer = startTimer(30*1000);
-    forecastTimer = startTimer(30*60*1000);
+    timeDateTimer.setInterval(7*1000);
+    forecastTimer.setInterval(30*60*1000);
+
+    connect(&timeDateTimer, SIGNAL(timeout()), this, SLOT(update()));
+    connect(&forecastTimer, SIGNAL(timeout()), this, SLOT(updateTemperature()));
 
     updateTemperature();
+
+    timeDateTimer.start();
+    forecastTimer.start();
 }
 
 void RpiClock::paintEvent(QPaintEvent *event)
@@ -35,29 +43,23 @@ void RpiClock::paintEvent(QPaintEvent *event)
 
     font.setPixelSize(80);
     p.setFont(font);
-    p.drawText(date_rect, Qt::AlignCenter, date_text + " " + temp_text);
-
+    if (timeDateTimer.interval() == 3*1000) {
+        timeDateTimer.setInterval(7*1000);
+        p.drawText(date_rect, Qt::AlignCenter, date_text + " " + temp_text);
+    } else {
+        timeDateTimer.setInterval(3*1000);
+        p.drawText(date_rect, Qt::AlignCenter, QString("20") + QChar(0260) + " 60%");
+    }
     font.setPixelSize(170);
     p.setFont(font);
     p.drawText(time_rect, Qt::AlignCenter, time_text);
 }
 
-void RpiClock::timerEvent(QTimerEvent* event)
-{
-    if (event->timerId() == timeDateTimer) {
-        update();
-    }
-    if (event->timerId() == forecastTimer) {
-        updateTemperature();
-    }
-}
-
 void RpiClock::updateTemperature()
 {
-    // Forecast Berlin: http://api.openweathermap.org/data/2.5/weather?id=2950159
-    // API: http://openweathermap.org/wiki/API/1.0/JSON_API
-    const QString APP_ID = "e2b075d68c39dc43e16995653fcd6fd0";
-    const QUrl url("http://api.openweathermap.org/data/2.5/weather?id=2950159&appid=" + APP_ID);
+    // Forecast Berlin: http://api.wunderground.com/api/xxxxxxxxxxxx/conditions/q/pws:IBERLIN2709.json
+    const QString APP_ID = "---";
+    const QUrl url("http://api.wunderground.com/api/" + APP_ID + "/conditions/q/pws:IBERLIN2709.json");
 
     QNetworkRequest request(url);
     forecast.get(request);
@@ -69,12 +71,14 @@ void RpiClock::fileDownloaded(QNetworkReply * pReply)
 
     pReply->deleteLater();
 
-    QRegExp rx("\"temp\":([-+]?[0-9]*.?[0-9]+),");
+    QRegExp rx("\"temp_c\":([-+]?[0-9]*.?[0-9]+),");
     if( rx.indexIn( downloadedData ) >= 0 ) {
-        int temperature = rx.cap(1).toFloat() - 273.15f;
+        int temperature = round(rx.cap(1).toFloat());
         temp_text = QString::number(temperature) + QChar(0260);
     } else {
         temp_text = QString("--") + QChar(0260);
     }
     update();
 }
+
+

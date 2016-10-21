@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QWidget>
+#include <QTimer>
 #include <QScopedPointer>
 #include <QNetworkAccessManager>
 
@@ -11,16 +12,15 @@ public:
     RpiClock(QWidget *parent=0);
 protected:
     void paintEvent(QPaintEvent *event);
-    void timerEvent(QTimerEvent*);
 private slots:
+    void updateTemperature();
     void fileDownloaded(QNetworkReply * pReply);
 private:
-    void updateTemperature();
 
     QNetworkAccessManager forecast;
 
     QString temp_text;
 
-    int timeDateTimer;
-    int forecastTimer;
+    QTimer timeDateTimer;
+    QTimer forecastTimer;
 };
