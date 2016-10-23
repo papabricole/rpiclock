@@ -9,6 +9,8 @@
 
 #include <cmath>
 
+#include "dht11/pi_2_dht_read.h"
+
 RpiClock::RpiClock(QWidget *parent) : QWidget(parent)
 {
     connect(&forecast, SIGNAL(finished(QNetworkReply*)), SLOT(fileDownloaded(QNetworkReply*)));
@@ -48,7 +50,10 @@ void RpiClock::paintEvent(QPaintEvent *event)
         p.drawText(date_rect, Qt::AlignCenter, date_text + " " + temp_text);
     } else {
         timeDateTimer.setInterval(3*1000);
-        p.drawText(date_rect, Qt::AlignCenter, QString("20") + QChar(0260) + " 60%");
+        float humidity = 0, temperature = 0;
+        int result = pi_2_dht_read(DHT11, 12, &humidity, &temperature);
+
+        p.drawText(date_rect, Qt::AlignCenter, QString::number(temperature) + QChar(0260) + " " + QString::number(humidity) + "%");
     }
     font.setPixelSize(170);
     p.setFont(font);
