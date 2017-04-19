@@ -11,7 +11,11 @@
 
 #include "dht11/pi_2_dht_read.h"
 
-RpiClock::RpiClock(QWidget *parent) : QWidget(parent)
+RpiClock::RpiClock(QWidget *parent) 
+    : QWidget(parent)
+    , mHumidity(0.f)
+    , mTemperature(0.f)
+    , mHomeIcon(":/images/home.png")
 {
     connect(&forecast, SIGNAL(finished(QNetworkReply*)), SLOT(fileDownloaded(QNetworkReply*)));
 
@@ -51,9 +55,13 @@ void RpiClock::paintEvent(QPaintEvent *event)
     } else {
         timeDateTimer.setInterval(3*1000);
         float humidity = 0, temperature = 0;
-        int result = pi_2_dht_read(DHT11, 12, &humidity, &temperature);
+        if (pi_2_dht_read(DHT11, 12, &humidity, &temperature) == DHT_SUCCESS) {
+            mHumidity = humidity;
+            mTemperature = temperature;
+        }
 
-        p.drawText(date_rect, Qt::AlignCenter, QString::number(temperature) + QChar(0260) + " " + QString::number(humidity) + "%");
+        p.drawPixmap(QRect(0, 30, mHomeIcon.width(), mHomeIcon.height()), mHomeIcon);
+        p.drawText(date_rect.adjusted(mHomeIcon.width(), 0, 0, 0), Qt::AlignCenter, " " + QString::number(mTemperature) + QChar(0260) + " " + QString::number(mHumidity) + "%");
     }
     font.setPixelSize(170);
     p.setFont(font);
@@ -63,10 +71,11 @@ void RpiClock::paintEvent(QPaintEvent *event)
 void RpiClock::updateTemperature()
 {
     // Forecast Berlin: http://api.wunderground.com/api/xxxxxxxxxxxx/conditions/q/pws:IBERLIN2709.json
-    const QString APP_ID = "---";
-    const QUrl url("http://api.wunderground.com/api/" + APP_ID + "/conditions/q/pws:IBERLIN2709.json");
-
+    const QString APP_ID = "01748a07052b5f92";
+//    const QUrl url("http://api.wunderground.com/api/" + APP_ID + "/conditions/q/pws:IBERLIN2709.json");
+    const QUrl url("https://io.adafruit.com/api/v2/morganleborgne/feeds/temperature");
     QNetworkRequest request(url);
+    request.setSslConfiguration(QSslConfiguration::defaultConfiguration());
     forecast.get(request);
 }
 
@@ -76,7 +85,8 @@ void RpiClock::fileDownloaded(QNetworkReply * pReply)
 
     pReply->deleteLater();
 
-    QRegExp rx("\"temp_c\":([-+]?[0-9]*.?[0-9]+),");
+    //QRegExp rx("\"temp_c\":([-+]?[0-9]*.?[0-9]+),");
+    QRegExp rx("\"last_value\":\"([-+]?[0-9]*.?[0-9]+)\",");
     if( rx.indexIn( downloadedData ) >= 0 ) {
         int temperature = round(rx.cap(1).toFloat());
         temp_text = QString::number(temperature) + QChar(0260);
