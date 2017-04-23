@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QWidget>
+#include <QPixmap>
 #include <QTimer>
 #include <QScopedPointer>
 #include <QNetworkAccessManager>
@@ -23,4 +24,9 @@ private:
 
     QTimer timeDateTimer;
     QTimer forecastTimer;
+
+    float mHumidity;
+    float mTemperature;
+
+    QPixmap mHomeIcon;
 };

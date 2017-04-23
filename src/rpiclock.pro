@@ -10,6 +10,8 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 CONFIG -= app_bundle
 
 # Input
+RESOURCES= RpiClock.qrc
+
 SOURCES += RpiClock.cpp \
            dht11/common_dht_read.c \
            dht11/pi_2_dht_read.c \
