@@ -70,7 +70,13 @@ void RpiClock::paintEvent(QPaintEvent *event)
 
 void RpiClock::updateTemperature()
 {
+#ifdef WUNDERGRUND
+    // Forecast Berlin: http://api.wunderground.com/api/xxxxxxxxxxxx/conditions/q/pws:IBERLIN2709.json
+    const QString APP_ID = "01748a07052b5f92";
+    const QUrl url("http://api.wunderground.com/api/" + APP_ID + "/conditions/q/pws:IBERLIN15.json");
+#else
     const QUrl url("https://io.adafruit.com/api/v2/morganleborgne/feeds/temperature");
+#endif
     QNetworkRequest request(url);
     request.setSslConfiguration(QSslConfiguration::defaultConfiguration());
     forecast.get(request);
@@ -81,8 +87,11 @@ void RpiClock::fileDownloaded(QNetworkReply * pReply)
     const QByteArray downloadedData = pReply->readAll();
 
     pReply->deleteLater();
-
+#ifdef WUNDERGRUND
+    QRegExp rx("\"temp_c\":([-+]?[0-9]*.?[0-9]+),");
+#else
     QRegExp rx("\"last_value\":\"([-+]?[0-9]*.?[0-9]+)\",");
+#endif
     if( rx.indexIn( downloadedData ) >= 0 ) {
         int temperature = round(rx.cap(1).toFloat());
         temp_text = QString::number(temperature) + QChar(0260);
