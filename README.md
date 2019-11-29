@@ -79,12 +79,3 @@ sudo crontab -e
 00 23 * * * echo 1 | sudo tee /sys/class/backlight/*/bl_power
 00 07 * * * echo 0 | sudo tee /sys/class/backlight/*/bl_power
 ```
-
-## Fix wifi drop
-
-```sh
-> sudo cat /etc/modprobe.d/8192cu.conf
-
-# Disable power saving
-options 8192cu rtw_power_mgnt=0 rtw_enusbss=1 rtw_ips_mode=1
-```
