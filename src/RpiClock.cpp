@@ -6,6 +6,8 @@
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QNetworkReply>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 #include <cmath>
 
@@ -81,9 +83,15 @@ void RpiClock::fileDownloaded(QNetworkReply * pReply)
     const QByteArray downloadedData = pReply->readAll();
 
     pReply->deleteLater();
-    QRegExp rx("\"temp\":([-+]?[0-9]*.?[0-9]+),");
-    if( rx.indexIn( downloadedData ) >= 0 ) {
-        int temperature = round(rx.cap(1).toFloat());
+
+    QJsonDocument doc = QJsonDocument::fromJson(downloadedData);
+    if (!doc.isEmpty())
+    {
+        QJsonObject object = doc.object();
+        QJsonObject current = object.value("current").toObject();
+
+        const int temperature = round(current.value("temp").toDouble());
+
         temp_text = QString::number(temperature) + QChar(0260);
     } else {
         temp_text = QString("--") + QChar(0260);
