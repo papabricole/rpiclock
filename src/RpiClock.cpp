@@ -11,7 +11,9 @@
 
 #include <cmath>
 
-#include "dht11/pi_2_dht_read.h"
+#if BUILD_DHT11
+#   include <pi_2_dht_read.h>
+#endif
 
 RpiClock::RpiClock(QWidget *parent) 
     : QWidget(parent)
@@ -56,12 +58,13 @@ void RpiClock::paintEvent(QPaintEvent *event)
         p.drawText(date_rect, Qt::AlignCenter, date_text + " " + temp_text);
     } else {
         timeDateTimer.setInterval(3*1000);
+#if BUILD_DHT11
         float humidity = 0, temperature = 0;
         if (pi_2_dht_read(DHT11, 12, &humidity, &temperature) == DHT_SUCCESS) {
             mHumidity = humidity;
             mTemperature = temperature;
         }
-
+#endif
         p.drawPixmap(QRect(0, 30, mHomeIcon.width(), mHomeIcon.height()), mHomeIcon);
         p.drawText(date_rect.adjusted(mHomeIcon.width(), 0, 0, 0), Qt::AlignCenter, " " + QString::number(mTemperature) + QChar(0260) + " " + QString::number(mHumidity) + "%");
     }
