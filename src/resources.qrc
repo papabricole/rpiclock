@@ -1,6 +1,7 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
-    <file>images/home.svg</file>
+    <file>home.svg</file>
+    <file>DejaVuSans.ttf</file>
     <file>RpiClock.qml</file>
 </qresource>
 </RCC>

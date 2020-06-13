@@ -48,6 +48,8 @@ Window {
         }
     }
 
+    FontLoader { id: localFont; source: "DejaVuSans.ttf" }
+
     Item {
         property int speed: 600
         property var easing: Easing.InOutCirc
@@ -60,7 +62,7 @@ Window {
 
         FontMetrics {
             id: fontMetrics
-            font.family: "Helvetica"
+            font.family: localFont.name
             font.pointSize: 70
         }
 
@@ -70,7 +72,7 @@ Window {
             color: "white"
             anchors.horizontalCenter: parent.horizontalCenter
             text: ""
-            font.family: "Helvetica"
+            font.family: localFont.name
             font.pointSize: 70; font.bold: false
         }
 
@@ -78,7 +80,7 @@ Window {
             id: home_icon
             height: 65
             fillMode: Image.PreserveAspectFit
-            source: "images/home.svg"
+            source: "home.svg"
             anchors.bottom: interior_text.baseline
             anchors.left: parent.left
         }
@@ -92,7 +94,7 @@ Window {
             anchors.left: home_icon.right
             anchors.right: parent.right
             text: ""
-            font.family: "Helvetica"
+            font.family: localFont.name
             font.pointSize: 65; font.bold: false
         }
 
@@ -112,7 +114,7 @@ Window {
         color: "white"
         y: 120
         anchors.horizontalCenter: parent.horizontalCenter
-        font.family: "Helvetica"
+        font.family: localFont.name
         font.pointSize: 130; font.bold: false
         text: ""
     }
