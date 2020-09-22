@@ -73,7 +73,7 @@ Window {
             anchors.horizontalCenter: parent.horizontalCenter
             text: ""
             font.family: localFont.name
-            font.pointSize: 70; font.bold: false
+            font.pointSize: 65; font.bold: false
         }
 
         Image {
