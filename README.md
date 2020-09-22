@@ -28,6 +28,8 @@ Then save and reboot
 
 Here we will change the default output display from HDMI to Tontec Screen
 
+sudo apt install xserver-xorg-video-fbturbo
+
 sudo vim /usr/share/X11/xorg.conf.d/99-fbturbo.conf
 
 ```sh
