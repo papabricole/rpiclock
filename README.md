@@ -81,3 +81,7 @@ sudo crontab -e
 00 23 * * * echo 1 | sudo tee /sys/class/backlight/*/bl_power
 00 07 * * * echo 0 | sudo tee /sys/class/backlight/*/bl_power
 ```
+
+## Firmware
+
+sudo rpi-update e1050e94821a70b2e4c72b318d6c6c968552e9a2
