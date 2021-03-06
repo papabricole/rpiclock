@@ -50,17 +50,17 @@ Add fbcon=map:10 at the end of current line. (No need to start a new line)
 ## Autostart
 
 ```sh
-> sudo cat /etc/rc.local
-su - morgan -c 'startx' &
+> crontab -l
+@reboot sleep 15 && startx /home/bzflebor/rpiclock.sh >> /home/bzflebor/rpiclock.log 2>&1 &
 
-> cat .xinitrc
+> cat ~/rpiclock.sh
 #!/bin/sh
 xset s off
 xset -dpms 
 xset s noblank
 
 while true; do
-  rpiclock
+  /usr/local/bin/rpiclock
 done;
 ```
 ## Backlight
