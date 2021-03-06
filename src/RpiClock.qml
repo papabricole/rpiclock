@@ -23,8 +23,8 @@ Window {
         password: "mqtt"
         Component.onCompleted: {
             console.log("connecting...")
-	    client.connectToHost()
-	}
+            client.connectToHost()
+        }
         onConnected: {
             console.log("connected!!!")
             interiorTemperatureSub = client.subscribe("sensors/A4:C1:38:24:F2:46/temperature")
@@ -41,28 +41,33 @@ Window {
             exterior_temperature = "--"
         }
         onErrorChanged: {
-	    console.log("error: " + error)
+            console.log("error: " + error)
         }
     }
 
     function interiorTemperatureReceived(payload)
     {
-	interior_temperature = Math.floor(payload)
+        interior_temperature = Math.floor(payload)
     }
 
     function interiorHumidityReceived(payload)
     {
-	interior_humidity = payload
+        interior_humidity = payload
     } 
 
     function exteriorTemperatureReceived(payload)
     {
-	exterior_temperature = Math.floor(payload)
+        exterior_temperature = Math.floor(payload)
     }
 
     Timer {
         interval: 1000; running: true; repeat: true; triggeredOnStart: true
         onTriggered: {
+            if (client.state === MqttClient.Disconnected)
+            {
+                console.log("connecting...")
+                client.connectToHost()
+            }
             interior_text.text = interior_temperature + "° " + interior_humidity + "%"
             exterior_text.text = Qt.formatDateTime(new Date(), "dd MMM ") + exterior_temperature + "°"
             time.text = Qt.formatDateTime(new Date(), "hh:mm")
