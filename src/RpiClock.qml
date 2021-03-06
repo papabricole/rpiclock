@@ -18,7 +18,7 @@ Window {
 
     MqttClient {
         id: client
-        hostname: "quadra.local"
+        hostname: "rpi.local"
         username: "mqtt"
         password: "mqtt"
         Component.onCompleted: {
