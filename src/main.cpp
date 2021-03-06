@@ -2,7 +2,7 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 
-#include "DHT11.h"
+#include "qmlmqttclient.h"
 
 int
 main(int argc, char* argv[])
@@ -11,10 +11,12 @@ main(int argc, char* argv[])
 
     QGuiApplication app(argc, argv);
     app.setOverrideCursor(QCursor(Qt::BlankCursor));
-
-    qmlRegisterType<DHT11>("com.dht11", 1, 0, "DHT11");
-
+    
     QQmlApplicationEngine engine;
+
+    qmlRegisterType<QmlMqttClient>("MqttClient", 1, 0, "MqttClient");
+    qmlRegisterUncreatableType<QmlMqttSubscription>("MqttClient", 1, 0, "MqttSubscription", QLatin1String("Subscriptions are read-only"));
+
     const QUrl url(QStringLiteral("qrc:/RpiClock.qml"));
     QObject::connect(
       &engine,
@@ -26,8 +28,6 @@ main(int argc, char* argv[])
       },
       Qt::QueuedConnection);
     engine.load(url);
-
-    // RpiClock clock(engine.rootObjects().first());
 
     return app.exec();
 }

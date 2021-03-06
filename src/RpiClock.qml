@@ -1,6 +1,6 @@
 import QtQuick 2.11
 import QtQuick.Window 2.11
-import com.dht11 1.0
+import MqttClient 1.0
 
 Window {
     visible: true
@@ -9,42 +9,63 @@ Window {
     color: "black"
     title: "RpiClock"
     objectName: "window"
+    property string interior_temperature: "--"
+    property string interior_humidity: "--"
     property string exterior_temperature: "--"
+    property var interiorTemperatureSub: 0
+    property var interiorHumiditySub: 0
+    property var exteriorTemperatureSub: 0
 
-    DHT11 {
-        id: dht11
+    MqttClient {
+        id: client
+        hostname: "quadra.local"
+        username: "mqtt"
+        password: "mqtt"
+        Component.onCompleted: {
+            console.log("connecting...")
+	    client.connectToHost()
+	}
+        onConnected: {
+            console.log("connected!!!")
+            interiorTemperatureSub = client.subscribe("sensors/A4:C1:38:24:F2:46/temperature")
+            interiorTemperatureSub.messageReceived.connect(interiorTemperatureReceived)
+            interiorHumiditySub = client.subscribe("sensors/A4:C1:38:24:F2:46/humidity")
+            interiorHumiditySub.messageReceived.connect(interiorHumidityReceived)
+            exteriorTemperatureSub = client.subscribe("sensors/A4:C1:38:2A:2D:90/temperature")
+            exteriorTemperatureSub.messageReceived.connect(exteriorTemperatureReceived)
+        }
+        onDisconnected: {
+            console.log("disconnected")
+            interior_temperature = "--"
+            interior_humidity = "--"
+            exterior_temperature = "--"
+        }
+        onErrorChanged: {
+	    console.log("error: " + error)
+        }
+    }
+
+    function interiorTemperatureReceived(payload)
+    {
+	interior_temperature = Math.floor(payload)
+    }
+
+    function interiorHumidityReceived(payload)
+    {
+	interior_humidity = payload
+    } 
+
+    function exteriorTemperatureReceived(payload)
+    {
+	exterior_temperature = Math.floor(payload)
     }
 
     Timer {
         interval: 1000; running: true; repeat: true; triggeredOnStart: true
         onTriggered: {
-            interior_text.text = dht11.temperature() + "° " +  dht11.humidity() + "%"
+            interior_text.text = interior_temperature + "° " + interior_humidity + "%"
             exterior_text.text = Qt.formatDateTime(new Date(), "dd MMM ") + exterior_temperature + "°"
             time.text = Qt.formatDateTime(new Date(), "hh:mm")
-        }
-    }
-
-    Timer {
-        id: interior
-        interval: 10000; running: true; repeat: true; triggeredOnStart: true
-        onTriggered: dht11.update()
-    }
-
-    Timer {
-        id: forecast
-        interval: 30 * 60 * 1000; running: true; repeat: true; triggeredOnStart: true
-        onTriggered: {
-            var xmlhttp = new XMLHttpRequest();
-            var url = "http://rpi.local";
-
-            xmlhttp.onreadystatechange=function() {
-                if (xmlhttp.readyState == XMLHttpRequest.DONE && xmlhttp.status == 200) {
-                    var jsn = JSON.parse(xmlhttp.responseText);
-                    exterior_temperature = Math.round(jsn['current']['temp'])
-                }
-            }
-            xmlhttp.open("GET", url, true);
-            xmlhttp.send();
         }
     }
 
